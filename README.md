@@ -1,1 +1,1 @@
-https://Himasopn.github.io/index.html
+https://Himasopn.github.io/indexcc
