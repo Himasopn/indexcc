@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Experience | Modern Website</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: #667eea;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="400" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/></svg>') no-repeat center center;
+            background-size: cover;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.5s;
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.8s;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 1.1s;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            padding: 5rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .share-section {
+            background: #f8f9fa;
+            text-align: center;
+            border-radius: 15px;
+            margin: 3rem 0;
+            padding: 3rem;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .share-facebook { background: #3b5998; }
+        .share-twitter { background: #1da1f2; }
+        .share-linkedin { background: #0077b5; }
+        .share-copy { background: #28a745; }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .setup-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .setup-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .setup-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .setup-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border: 1px solid #e9ecef;
+        }
+
+        .code-block code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #495057;
+        }
+
+        .copy-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin: 2px;
+        }
+
+        .copy-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .code-section {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: #fff;
+        }
+
+        .code-preview {
+            background: #2d2d2d;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            color: #f8f8f2;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 5rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .share-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .share-btn {
+                width: 200px;
+                justify-content: center;
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">SmoothSite</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#setup">Setup Guide</a></li>
+                <li><a href="#contact">Get Started</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Welcome to the Future</h1>
+            <p>Experience smooth scrolling and modern web design with interactive features that engage your audience.</p>
+            <a href="#about" class="cta-button">Discover More</a>
+        </div>
+    </section>
+
+    <section class="section fade-in" id="about">
+        <h2>About Our Experience</h2>
+        <p style="text-align: center; font-size: 1.1rem; color: #666; max-width: 800px; margin: 0 auto;">
+            We create smooth, engaging web experiences that captivate users and provide seamless navigation. 
+            Our modern approach combines beautiful design with functional features that make sharing and 
+            interaction effortless.
+        </p>
+        
+        <div class="share-section fade-in">
+            <h3 style="margin-bottom: 1rem; color: #333;">Share This Experience</h3>
+            <p style="color: #666; margin-bottom: 0;">Love what you see? Share it with others!</p>
+            <div class="share-buttons">
+                <a href="#" class="share-btn share-facebook" onclick="shareOnFacebook()">
+                    📘 Facebook
+                </a>
+                <a href="#" class="share-btn share-twitter" onclick="shareOnTwitter()">
+                    🐦 Twitter
+                </a>
+                <a href="#" class="share-btn share-linkedin" onclick="shareOnLinkedIn()">
+                    💼 LinkedIn
+                </a>
+                <button class="share-btn share-copy" onclick="copyLink()">
+                    📋 Copy Link
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="section fade-in" id="features">
+        <h2>Amazing Features</h2>
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon">🚀</div>
+                <h3>Smooth Scrolling</h3>
+                <p>Experience buttery-smooth navigation that flows naturally as you explore the content.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">📱</div>
+                <h3>Responsive Design</h3>
+                <p>Perfect experience across all devices, from desktop to mobile, with adaptive layouts.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">🎨</div>
+                <h3>Modern Aesthetics</h3>
+                <p>Beautiful gradients, smooth animations, and contemporary design elements that wow.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">⚡</div>
+                <h3>Fast Performance</h3>
+                <p>Optimized code ensures lightning-fast loading times and smooth interactions.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">🔗</div>
+                <h3>Easy Sharing</h3>
+                <p>Built-in social sharing features make it simple to spread the word about great content.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">✨</div>
+                <h3>Interactive Elements</h3>
+                <p>Engaging hover effects and animations that respond to user interaction beautifully.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section fade-in" id="setup">
+        <h2>🚀 Setup & Deployment Guide</h2>
+        
+        <div class="setup-grid">
+            <div class="setup-card">
+                <div class="setup-icon">📁</div>
+                <h3>GitHub Repository Setup</h3>
+                <div class="code-block">
+                    <strong>Step 1:</strong> Create new repository on GitHub<br>
+                    <strong>Step 2:</strong> Upload this HTML file as <code>index.html</code><br>
+                    <strong>Step 3:</strong> Enable GitHub Pages in Settings → Pages<br>
+                    <strong>Result:</strong> Your site will be live at:<br>
+                    <code>https://yourusername.github.io/repository-name</code>
+                </div>
+            </div>
+
+            <div class="setup-card">
+                <div class="setup-icon">💻</div>
+                <h3>Run Locally</h3>
+                <div class="code-block">
+                    <strong>Option 1:</strong> Double-click the HTML file<br>
+                    <strong>Option 2:</strong> Python server:<br>
+                    <code>python -m http.server 8000</code><br>
+                    <strong>Option 3:</strong> Node.js:<br>
+                    <code>npx serve .</code><br>
+                    Then open <code>http://localhost:8000</code>
+                </div>
+            </div>
+
+            <div class="setup-card">
+                <div class="setup-icon">🌐</div>
+                <h3>Free Hosting Options</h3>
+                <div class="code-block">
+                    <strong>GitHub Pages:</strong> Free with GitHub repo<br>
+                    <strong>Netlify:</strong> Drag & drop deployment<br>
+                    <strong>Vercel:</strong> Git integration<br>
+                    <strong>Surge.sh:</strong> Command line deployment<br>
+                    All support custom domains!
+                </div>
+            </div>
+
+            <div class="setup-card">
+                <div class="setup-icon">🎨</div>
+                <h3>Easy Customization</h3>
+                <div class="code-block">
+                    <strong>Colors:</strong> Edit gradient values in CSS<br>
+                    <strong>Content:</strong> Update HTML text directly<br>
+                    <strong>Logo:</strong> Change "SmoothSite" in navigation<br>
+                    <strong>Sections:</strong> Add/remove content blocks<br>
+                    No build process required!
+                </div>
+            </div>
+
+            <div class="setup-card">
+                <div class="setup-icon">⚡</div>
+                <h3>What's Included</h3>
+                <div class="code-block">
+                    ✅ Smooth scrolling navigation<br>
+                    ✅ Social media sharing<br>
+                    ✅ Mobile responsive design<br>
+                    ✅ Modern animations<br>
+                    ✅ No external dependencies<br>
+                    ✅ SEO optimized structure
+                </div>
+            </div>
+
+            <div class="setup-card">
+                <div class="setup-icon">🚀</div>
+                <h3>Quick Start Commands</h3>
+                <div class="code-block">
+                    <button onclick="copyCommand('git clone https://github.com/yourusername/smoothsite.git')" class="copy-btn">📋 Clone Command</button><br><br>
+                    <button onclick="copyCommand('python -m http.server 8000')" class="copy-btn">📋 Python Server</button><br><br>
+                    <button onclick="copyCommand('npx serve . -p 8000')" class="copy-btn">📋 NPX Serve</button><br><br>
+                    <button onclick="downloadHTML()" class="copy-btn">💾 Download HTML</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="code-section fade-in">
+            <h3 style="color: #fff; margin-bottom: 1rem;">📋 Ready-to-Use HTML Structure</h3>
+            <p style="color: #ccc; margin-bottom: 1rem;">This entire website is contained in a single HTML file. Copy the source code to get started:</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="color: #888;">index.html (Complete website)</span>
+                <button onclick="copyFullHTML()" class="copy-btn" style="background: #4CAF50;">📋 Copy Full HTML</button>
+            </div>
+            <div class="code-preview">
+&lt;!DOCTYPE html&gt;<br>
+&lt;html lang="en"&gt;<br>
+&lt;head&gt;<br>
+&nbsp;&nbsp;&lt;meta charset="UTF-8"&gt;<br>
+&nbsp;&nbsp;&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;<br>
+&nbsp;&nbsp;&lt;title&gt;Smooth Experience | Modern Website&lt;/title&gt;<br>
+&nbsp;&nbsp;&lt;style&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #66d9ef;">/* Complete CSS included... */</span><br>
+&nbsp;&nbsp;&lt;/style&gt;<br>
+&lt;/head&gt;<br>
+&lt;body&gt;<br>
+&nbsp;&nbsp;<span style="color: #66d9ef;">&lt;!-- Complete HTML structure... --&gt;</span><br>
+&nbsp;&nbsp;&lt;script&gt;<span style="color: #66d9ef;">/* All JavaScript included */</span>&lt;/script&gt;<br>
+&lt;/body&gt;<br>
+&lt;/html&gt;
+            </div>
+        </div>
+    </section>
+
+    <section class="section fade-in" id="contact">
+        <h2>Get In Touch</h2>
+        <p style="text-align: center; font-size: 1.1rem; color: #666; max-width: 600px; margin: 0 auto;">
+            Ready to create your own smooth web experience? This single HTML file contains everything you need!
+        </p>
+        <div style="text-align: center; margin-top: 2rem;">
+            <button onclick="window.open('https://github.com')" class="cta-button" style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); border: none; color: white; cursor: pointer; margin-right: 1rem;">
+                🐙 Create GitHub Repo
+            </button>
+            <button onclick="downloadHTML()" class="cta-button" style="background: linear-gradient(45deg, #28a745 0%, #20c997 100%); border: none; color: white; cursor: pointer;">
+                💾 Download File
+            </button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2024 SmoothSite. Crafted with ❤️ for amazing web experiences.</p>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">
+        ↑
+    </button>
+
+    <script>
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            const backToTop = document.getElementById('backToTop');
+            
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+                backToTop.classList.add('visible');
+            } else {
+                navbar.classList.remove('scrolled');
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out this amazing smooth scrolling website! ');
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnLinkedIn() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ Copied!';
+                button.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '#28a745';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                const textArea = document.createElement('textarea');
+                textArea.value = window.location.href;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Link copied to clipboard!');
+                } catch (err) {
+                    console.error('Fallback: Could not copy text: ', err);
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        function copyCommand(command) {
+            navigator.clipboard.writeText(command).then(function() {
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ Copied!';
+                button.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '#007bff';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Command: ' + command);
+            });
+        }
+
+        function copyFullHTML() {
+            const htmlContent = document.documentElement.outerHTML;
+            navigator.clipboard.writeText(htmlContent).then(function() {
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ HTML Copied!';
+                button.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '#4CAF50';
+                }, 3000);
+            }).catch(function(err) {
+                console.error('Could not copy HTML: ', err);
+                alert('Please use Ctrl+U to view source and copy manually');
+            });
+        }
+
+        function downloadHTML() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'smoothsite-index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        document.addEventListener('mousemove', function(e) {
+            const hero = document.querySelector('.hero');
+            const rect = hero.getBoundingClientRect();
+            
+            if (rect.top <= 0 && rect.bottom >= 0) {
+                const x = (e.clientX / window.innerWidth) * 100;
+                const y = (e.clientY / window.innerHeight) * 100;
+                
+                hero.style.background = `linear-gradient(${x}deg, #667eea 0%, #764ba2 100%)`;
+            }
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                const offsetTop = target.offsetTop - 80;
+                
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
