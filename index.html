@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartAI - Web Search & Analysis</title>
+    <title>Advanced Password Strength Checker</title>
     <style>
         * {
             margin: 0;
@@ -13,752 +13,651 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #000000 0%, #1a0015 50%, #2d0028 100%);
-            color: #ffffff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 4s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255, 105, 180, 0.2);
-            animation: slideDown 0.8s ease-out;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
         }
 
-        @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            background: linear-gradient(45deg, #ff69b4, #ff1493, #c71585);
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
-        .logo::before {
-            content: "🧠";
-            animation: sparkle 2s infinite;
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            opacity: 0.8;
         }
 
-        @keyframes sparkle {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(180deg); }
+        .password-input-container {
+            position: relative;
+            margin-bottom: 30px;
         }
 
-        .ai-status {
+        .password-input {
+            width: 100%;
+            padding: 20px 60px 20px 20px;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            font-size: 18px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .password-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 5px 25px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .toggle-visibility {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-visibility:hover {
+            color: #667eea;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .strength-meter {
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            transition: all 0.5s ease;
+            background: linear-gradient(90deg, #ff4757, #ffa502, #26de81, #2ed573);
+            background-size: 400% 100%;
+            animation: gradient 2s ease infinite;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .strength-text {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-very-weak {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .strength-weak {
+            background: linear-gradient(135deg, #ffa502, #ff9500);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 165, 2, 0.3);
+        }
+
+        .strength-medium {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .strength-strong {
+            background: linear-gradient(135deg, #26de81, #20bf6b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(38, 222, 129, 0.3);
+        }
+
+        .strength-very-strong {
+            background: linear-gradient(135deg, #2ed573, #17c0eb);
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+        }
+
+        .requirements {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .requirements h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 16px;
-            background: rgba(255, 105, 180, 0.1);
-            border: 1px solid rgba(255, 105, 180, 0.3);
-            border-radius: 20px;
-            font-size: 14px;
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #00ff00;
-            border-radius: 50%;
+        .requirements h3::before {
+            content: "✅";
+            margin-right: 10px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .requirement.met {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            transform: scale(1.02);
+        }
+
+        .requirement.not-met {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+        }
+
+        .requirement-icon {
+            margin-right: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .analysis {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .analysis h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .analysis h3::before {
+            content: "🧠";
+            margin-right: 10px;
+        }
+
+        .analysis-item {
+            margin: 8px 0;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .tips {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .tips h3 {
+            color: #ef6c00;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .tips h3::before {
+            content: "💡";
+            margin-right: 10px;
+        }
+
+        .tip {
+            margin: 8px 0;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            border-left: 4px solid #ff9800;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #667eea;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 0;
-        }
-
-        .welcome-section {
-            text-align: center;
-            margin-bottom: 40px;
-            animation: fadeInUp 1s ease-out 0.3s both;
-        }
-
-        @keyframes fadeInUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .welcome-title {
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, #ff69b4, #ff1493, #c71585, #8b008b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { filter: drop-shadow(0 0 20px rgba(255, 105, 180, 0.3)); }
-            to { filter: drop-shadow(0 0 30px rgba(255, 105, 180, 0.6)); }
-        }
-
-        .welcome-subtitle {
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 30px;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 900px;
-            background: rgba(255, 105, 180, 0.05);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(255, 105, 180, 0.2);
-            backdrop-filter: blur(10px);
-            animation: slideUp 1s ease-out 0.6s both;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .chat-messages {
-            height: 500px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 105, 180, 0.1);
-        }
-
-        .message {
-            margin-bottom: 20px;
-            animation: messageAppear 0.5s ease-out;
-        }
-
-        @keyframes messageAppear {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .user-message {
-            text-align: right;
-        }
-
-        .user-message .message-content {
-            background: linear-gradient(135deg, #ff69b4, #ff1493);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 20px 20px 5px 20px;
-            display: inline-block;
-            max-width: 80%;
-            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
-            word-wrap: break-word;
-        }
-
-        .ai-message .message-content {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 20px 20px 20px 5px;
-            display: inline-block;
-            max-width: 85%;
-            border: 1px solid rgba(255, 105, 180, 0.2);
-            word-wrap: break-word;
-            line-height: 1.6;
-        }
-
-        .search-indicator {
-            background: rgba(255, 215, 0, 0.2);
-            color: #ffd700;
-            padding: 10px 15px;
-            border-radius: 15px;
-            margin: 10px 0;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            font-size: 14px;
-            display: none;
-        }
-
-        .analysis-box {
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
-            color: #00ffff;
-            font-size: 14px;
-        }
-
-        .source-links {
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            border-left: 3px solid #ff69b4;
-        }
-
-        .source-link {
-            color: #ff69b4;
-            text-decoration: none;
-            margin-right: 15px;
-            font-size: 12px;
-        }
-
-        .source-link:hover {
-            text-decoration: underline;
-        }
-
-        .input-container {
-            display: flex;
-            gap: 15px;
-            align-items: flex-end;
-        }
-
-        .input-field {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid rgba(255, 105, 180, 0.3);
-            border-radius: 25px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s ease;
-            resize: none;
-            min-height: 50px;
-            max-height: 150px;
-        }
-
-        .input-field:focus {
-            border-color: #ff69b4;
-            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
-            background: rgba(0, 0, 0, 0.7);
-        }
-
-        .send-button {
-            padding: 15px 25px;
-            background: linear-gradient(135deg, #ff69b4, #ff1493);
-            border: none;
-            border-radius: 25px;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
-            min-width: 80px;
-        }
-
-        .send-button:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.5);
-        }
-
-        .send-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .typing-indicator {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            margin: 20px 0;
-            color: #ff69b4;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ff69b4;
-            animation: typing 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(2) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(3) { animation-delay: -0.16s; }
-
-        @keyframes typing {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40% { transform: scale(1.2); opacity: 1; }
-        }
-
-        .floating-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #ff69b4;
-            border-radius: 50%;
-            animation: float 6s infinite linear;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
-        }
-
-        .quick-suggestions {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .suggestion {
-            padding: 8px 14px;
-            background: rgba(255, 105, 180, 0.1);
-            border: 1px solid rgba(255, 105, 180, 0.2);
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s ease;
-        }
-
-        .suggestion:hover {
-            background: rgba(255, 105, 180, 0.2);
-            transform: translateY(-2px);
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         @media (max-width: 768px) {
-            .welcome-title { font-size: 36px; }
-            .chat-container { padding: 20px; margin: 0 10px; }
-            .ai-status { font-size: 12px; }
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .password-input {
+                font-size: 16px;
+                padding: 15px 50px 15px 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="floating-particles" id="particles"></div>
-    
     <div class="container">
-        <header class="header">
-            <div class="logo">SmartAI Pro</div>
-            <div class="ai-status">
-                <div class="status-dot"></div>
-                <span>AI + Web Search Online</span>
+        <div class="header">
+            <h1>🔒 Password Strength Checker</h1>
+            <p>Advanced security analysis for your passwords</p>
+        </div>
+
+        <div class="password-input-container">
+            <input type="password" class="password-input" id="passwordInput" placeholder="Enter your password here..." />
+            <button class="toggle-visibility" id="toggleBtn" onclick="toggleVisibility()">👁️</button>
+        </div>
+
+        <div class="strength-meter">
+            <div class="strength-fill" id="strengthFill"></div>
+        </div>
+
+        <div class="strength-text" id="strengthText">Start typing to check password strength</div>
+
+        <div class="score-display" id="scoreDisplay">0/100</div>
+
+        <div class="requirements" id="requirements">
+            <h3>Password Requirements</h3>
+            <div class="requirement not-met" id="req-length">
+                <span class="requirement-icon">❌</span>
+                <span>At least 8 characters long</span>
             </div>
-        </header>
-
-        <main class="main-content">
-            <div class="welcome-section">
-                <h1 class="welcome-title">Smart AI Assistant</h1>
-                <p class="welcome-subtitle">Advanced AI with Web Search & Real-time Analysis</p>
+            <div class="requirement not-met" id="req-uppercase">
+                <span class="requirement-icon">❌</span>
+                <span>Contains uppercase letters (A-Z)</span>
             </div>
-
-            <div class="chat-container">
-                <div class="quick-suggestions">
-                    <div class="suggestion" onclick="sendQuickMessage('What is the latest news about artificial intelligence?')">🔍 Latest AI News</div>
-                    <div class="suggestion" onclick="sendQuickMessage('Search for current stock market trends')">📈 Market Trends</div>
-                    <div class="suggestion" onclick="sendQuickMessage('Find information about climate change solutions')">🌍 Climate Info</div>
-                    <div class="suggestion" onclick="sendQuickMessage('What are the latest tech innovations?')">💻 Tech Updates</div>
-                    <div class="suggestion" onclick="sendQuickMessage('Search for healthy recipes')">🍲 Recipes</div>
-                </div>
-
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message ai-message">
-                        <div class="message-content">
-                            🧠 Hello! I'm SmartAI Pro - an advanced AI assistant with web search capabilities. I can:
-                            <br><br>
-                            🔍 <strong>Search the web</strong> for real-time information
-                            <br>🧮 <strong>Analyze data</strong> and provide insights
-                            <br>📊 <strong>Compare sources</strong> and fact-check
-                            <br>💡 <strong>Solve complex problems</strong> with current data
-                            <br><br>
-                            Ask me anything - I'll search the web if needed and provide you with accurate, analyzed information!
-                        </div>
-                    </div>
-                </div>
-
-                <div class="search-indicator" id="searchIndicator">
-                    🔍 Searching the web for latest information...
-                </div>
-
-                <div class="typing-indicator" id="typingIndicator">
-                    <span>SmartAI is analyzing</span>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-
-                <div class="input-container">
-                    <textarea 
-                        class="input-field" 
-                        id="messageInput" 
-                        placeholder="Ask me anything... I can search the web for current information!"
-                        rows="1"
-                    ></textarea>
-                    <button class="send-button" id="sendButton">Send</button>
-                </div>
+            <div class="requirement not-met" id="req-lowercase">
+                <span class="requirement-icon">❌</span>
+                <span>Contains lowercase letters (a-z)</span>
             </div>
-        </main>
+            <div class="requirement not-met" id="req-numbers">
+                <span class="requirement-icon">❌</span>
+                <span>Contains numbers (0-9)</span>
+            </div>
+            <div class="requirement not-met" id="req-special">
+                <span class="requirement-icon">❌</span>
+                <span>Contains special characters (!@#$%^&*)</span>
+            </div>
+            <div class="requirement not-met" id="req-no-common">
+                <span class="requirement-icon">❌</span>
+                <span>Not a common password</span>
+            </div>
+        </div>
+
+        <div class="analysis" id="analysisSection" style="display: none;">
+            <h3>Security Analysis</h3>
+            <div id="analysisContent"></div>
+        </div>
+
+        <div class="tips">
+            <h3>Password Security Tips</h3>
+            <div class="tip">Use a mix of uppercase and lowercase letters</div>
+            <div class="tip">Include numbers and special characters</div>
+            <div class="tip">Make it at least 12 characters long</div>
+            <div class="tip">Avoid personal information (names, dates)</div>
+            <div class="tip">Don't use common passwords or dictionary words</div>
+            <div class="tip">Consider using a passphrase instead</div>
+        </div>
+
+        <button class="generate-btn" onclick="generateStrongPassword()">🎲 Generate Strong Password</button>
     </div>
 
     <script>
-        class SmartAI {
-            constructor() {
-                this.conversationHistory = [];
-                this.knowledgeBase = new Map();
-                this.searchAPIs = [
-                    'https://api.duckduckgo.com/',
-                    'https://www.googleapis.com/customsearch/v1',
-                    'https://api.bing.microsoft.com/v7.0/search'
-                ];
-                this.analysisCache = new Map();
+        const passwordInput = document.getElementById('passwordInput');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const analysisSection = document.getElementById('analysisSection');
+        const analysisContent = document.getElementById('analysisContent');
+
+        const commonPasswords = [
+            'password', '123456', '123456789', 'qwerty', 'abc123',
+            'password123', 'admin', 'letmein', 'welcome', 'monkey',
+            'dragon', 'master', 'shadow', 'login', 'princess'
+        ];
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = calculatePasswordStrength(password);
+            updateDisplay(strength, password);
+        });
+
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            let feedback = [];
+            let requirements = {
+                length: false,
+                uppercase: false,
+                lowercase: false,
+                numbers: false,
+                special: false,
+                noCommon: true
+            };
+
+            // Length check
+            if (password.length >= 8) {
+                requirements.length = true;
+                score += 20;
+            } else if (password.length >= 6) {
+                score += 10;
+                feedback.push("Password should be at least 8 characters long");
+            } else {
+                feedback.push("Password is too short (minimum 8 characters)");
             }
 
-            async searchWeb(query) {
-                const searchResults = [];
-                
-                try {
-                    // Try DuckDuckGo instant answer API
-                    const ddgResponse = await this.duckDuckGoSearch(query);
-                    if (ddgResponse) searchResults.push(...ddgResponse);
+            // Bonus for longer passwords
+            if (password.length >= 12) score += 10;
+            if (password.length >= 16) score += 10;
 
-                    // Fallback to simulated web search with realistic data
-                    if (searchResults.length === 0) {
-                        const simulatedResults = await this.simulateWebSearch(query);
-                        searchResults.push(...simulatedResults);
-                    }
-
-                } catch (error) {
-                    console.log('Using fallback search method');
-                    const simulatedResults = await this.simulateWebSearch(query);
-                    searchResults.push(...simulatedResults);
-                }
-
-                return searchResults;
+            // Character variety checks
+            if (/[A-Z]/.test(password)) {
+                requirements.uppercase = true;
+                score += 15;
+            } else {
+                feedback.push("Add uppercase letters for better security");
             }
 
-            async duckDuckGoSearch(query) {
-                try {
-                    const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        return this.processDuckDuckGoResults(data);
-                    }
-                } catch (error) {
-                    console.log('DuckDuckGo search failed:', error);
-                }
-                return null;
+            if (/[a-z]/.test(password)) {
+                requirements.lowercase = true;
+                score += 15;
+            } else {
+                feedback.push("Add lowercase letters for better security");
             }
 
-            processDuckDuckGoResults(data) {
-                const results = [];
-                
-                if (data.AbstractText) {
-                    results.push({
-                        title: data.Heading || 'Overview',
-                        snippet: data.AbstractText,
-                        url: data.AbstractURL || '#',
-                        source: 'DuckDuckGo',
-                        relevance: 0.9
-                    });
-                }
-
-                if (data.RelatedTopics) {
-                    data.RelatedTopics.slice(0, 3).forEach(topic => {
-                        if (topic.Text) {
-                            results.push({
-                                title: topic.FirstURL ? topic.FirstURL.split('/').pop() : 'Related',
-                                snippet: topic.Text,
-                                url: topic.FirstURL || '#',
-                                source: 'DuckDuckGo',
-                                relevance: 0.7
-                            });
-                        }
-                    });
-                }
-
-                return results;
+            if (/[0-9]/.test(password)) {
+                requirements.numbers = true;
+                score += 15;
+            } else {
+                feedback.push("Add numbers for better security");
             }
 
-            async simulateWebSearch(query) {
-                // Simulate realistic search delay
-                await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-
-                const q = query.toLowerCase();
-                let results = [];
-
-                // AI and Technology queries
-                if (q.includes('ai') || q.includes('artificial intelligence') || q.includes('technology')) {
-                    results = [
-                        {
-                            title: "Latest AI Developments and Breakthroughs",
-                            snippet: "Recent advances in artificial intelligence include significant improvements in large language models, computer vision, and autonomous systems. Major companies are investing heavily in AI research, leading to breakthrough applications in healthcare, finance, and education.",
-                            url: "https://example-tech-news.com/ai-latest",
-                            source: "Tech News Today",
-                            relevance: 0.95
-                        },
-                        {
-                            title: "AI Market Trends and Future Predictions",
-                            snippet: "The global AI market is projected to reach $1.8 trillion by 2030, with machine learning and natural language processing leading growth sectors. Key trends include ethical AI development and integration across industries.",
-                            url: "https://market-research.com/ai-trends",
-                            source: "Market Research Pro",
-                            relevance: 0.88
-                        }
-                    ];
-                }
-                // Stock Market queries
-                else if (q.includes('stock') || q.includes('market') || q.includes('trading')) {
-                    results = [
-                        {
-                            title: "Current Stock Market Analysis",
-                            snippet: "Global markets showing mixed signals with tech stocks leading gains while energy sector faces volatility. Key indicators suggest cautious optimism for Q4 performance with emerging markets showing resilience.",
-                            url: "https://financial-times.com/market-analysis",
-                            source: "Financial Times",
-                            relevance: 0.92
-                        },
-                        {
-                            title: "Investment Strategies for Current Market",
-                            snippet: "Financial experts recommend diversified portfolios with focus on sustainable investments and technology sectors. Risk management remains crucial amid global economic uncertainties.",
-                            url: "https://investment-weekly.com/strategies",
-                            source: "Investment Weekly",
-                            relevance: 0.85
-                        }
-                    ];
-                }
-                // Climate and Environment
-                else if (q.includes('climate') || q.includes('environment') || q.includes('green')) {
-                    results = [
-                        {
-                            title: "Climate Change Solutions and Innovations",
-                            snippet: "Breakthrough technologies in renewable energy, carbon capture, and sustainable agriculture are showing promising results. New research indicates significant potential for reducing global emissions through innovative approaches.",
-                            url: "https://climate-science.org/solutions",
-                            source: "Climate Science Journal",
-                            relevance: 0.94
-                        },
-                        {
-                            title: "Global Environmental Initiatives Update",
-                            snippet: "International cooperation on climate action has led to new agreements on carbon reduction targets. Countries are implementing comprehensive strategies for transitioning to clean energy systems.",
-                            url: "https://environment-today.com/initiatives",
-                            source: "Environment Today",
-                            relevance: 0.87
-                        }
-                    ];
-                }
-                // Health and Recipes
-                else if (q.includes('recipe') || q.includes('healthy') || q.includes('nutrition')) {
-                    results = [
-                        {
-                            title: "Nutritious and Delicious Recipe Collection",
-                            snippet: "Discover healthy recipes that combine taste and nutrition. Our collection features plant-based meals, lean proteins, and balanced dishes that support overall wellness while satisfying your taste buds.",
-                            url: "https://healthy-cooking.com/recipes",
-                            source: "Healthy Cooking Magazine",
-                            relevance: 0.91
-                        },
-                        {
-                            title: "Latest Nutrition Research and Guidelines",
-                            snippet: "Recent studies highlight the importance of diverse nutrients and balanced meals. New dietary guidelines emphasize whole foods, reduced processed foods, and personalized nutrition approaches.",
-                            url: "https://nutrition-research.org/latest",
-                            source: "Nutrition Research Institute",
-                            relevance: 0.83
-                        }
-                    ];
-                }
-                // General knowledge fallback
-                else {
-                    results = [
-                        {
-                            title: `Comprehensive Information about ${query}`,
-                            snippet: `Based on current research and available data, here's what we know about ${query}. This topic involves multiple perspectives and recent developments that are worth exploring further.`,
-                            url: "https://knowledge-base.com/search",
-                            source: "Knowledge Base",
-                            relevance: 0.75
-                        },
-                        {
-                            title: `Recent Updates on ${query}`,
-                            snippet: `Latest information and analysis regarding ${query}. Multiple sources provide varying insights on this topic, suggesting the need for comprehensive understanding and continued research.`,
-                            url: "https://research-hub.com/updates",
-                            source: "Research Hub",
-                            relevance: 0.70
-                        }
-                    ];
-                }
-
-                // Add timestamp and randomize order slightly
-                results.forEach(result => {
-                    result.timestamp = new Date().toISOString();
-                    result.confidence = result.relevance;
-                });
-
-                return results.sort((a, b) => b.relevance - a.relevance);
+            if (/[^A-Za-z0-9]/.test(password)) {
+                requirements.special = true;
+                score += 15;
+            } else {
+                feedback.push("Add special characters (!@#$%^&*) for better security");
             }
 
-            analyzeQuery(query) {
-                const needsWebSearch = 
-                    query.toLowerCase().includes('latest') ||
-                    query.toLowerCase().includes('current') ||
-                    query.toLowerCase().includes('news') ||
-                    query.toLowerCase().includes('recent') ||
-                    query.toLowerCase().includes('today') ||
-                    query.toLowerCase().includes('now') ||
-                    query.toLowerCase().includes('search') ||
-                    query.toLowerCase().includes('find') ||
-                    query.toLowerCase().includes('what is happening') ||
-                    query.toLowerCase().includes('updates') ||
-                    query.length > 50; // Complex queries might need web search
-
-                const complexity = this.assessComplexity(query);
-                const topics = this.extractTopics(query);
-
-                return {
-                    needsWebSearch,
-                    complexity,
-                    topics,
-                    queryType: this.classifyQuery(query)
-                };
+            // Common password check
+            if (commonPasswords.includes(password.toLowerCase())) {
+                requirements.noCommon = false;
+                score -= 30;
+                feedback.push("This is a commonly used password - avoid it!");
             }
 
-            assessComplexity(query) {
-                const words = query.split(' ').length;
-                if (words > 15) return 'high';
-                if (words > 7) return 'medium';
-                return 'low';
+            // Pattern checks
+            if (/(.)\1{2,}/.test(password)) {
+                score -= 10;
+                feedback.push("Avoid repeated characters");
             }
 
-            extractTopics(query) {
-                const topicKeywords = {
-                    'technology': ['tech', 'ai', 'computer', 'software', 'programming', 'digital'],
-                    'science': ['research', 'study', 'scientific', 'discovery', 'experiment'],
-                    'business': ['market', 'stock', 'economy', 'business', 'finance', 'investment'],
-                    'health': ['health', 'medical', 'disease', 'treatment', 'nutrition', 'recipe'],
-                    'environment': ['climate', 'environment', 'green', 'sustainable', 'energy'],
-                    'general': []
-                };
-
-                const query_lower = query.toLowerCase();
-                for (const [topic, keywords] of Object.entries(topicKeywords)) {
-                    if (keywords.some(keyword => query_lower.includes(keyword))) {
-                        return topic;
-                    }
-                }
-                return 'general';
+            if (/123|abc|qwe|asd/i.test(password)) {
+                score -= 15;
+                feedback.push("Avoid common sequences");
             }
 
-            classifyQuery(query) {
-                const q = query.toLowerCase();
-                if (q.startsWith('what') || q.startsWith('how') || q.startsWith('why')) return 'question';
-                if (q.includes('find') || q.includes('search')) return 'search';
-                if (q.includes('analyze') || q.includes('compare')) return 'analysis';
-                return 'general';
+            // Entropy bonus
+            const uniqueChars = new Set(password).size;
+            if (uniqueChars > password.length * 0.7) {
+                score += 10;
+                feedback.push("Good character diversity!");
             }
 
-            async generateResponse(userMessage) {
-                const analysis = this.analyzeQuery(userMessage);
-                let response = "";
-                let sources = [];
+            score = Math.max(0, Math.min(100, score));
 
-                if (analysis.needsWebSearch) {
-                    // Show search indicator
-                    document.getElementById('searchIndicator').style.display = 'block';
-                    
-                    try {
-                        const searchResults = await this.searchWeb(userMessage);
-                        sources = searchResults;
-                        response = this.synthesizeResponse(userMessage, searchResults, analysis);
-                    } catch (error) {
-                        response = "I apologize, but I'm having trouble accessing web search right now. However, I can still help based on my knowledge: " + this.generateKnowledgeBasedResponse(userMessage);
-                    }
-                    
-                    // Hide search indicator
-                    document.getElementById('searchIndicator').style.display = 'none';
+            let level;
+            if (score < 30) level = 'very-weak';
+            else if (score < 50) level = 'weak';
+            else if (score < 70) level = 'medium';
+            else if (score < 90) level = 'strong';
+            else level = 'very-strong';
+
+            return {
+                score: score,
+                level: level,
+                requirements: requirements,
+                feedback: feedback,
+                timeToCrack: estimateTimeToCrack(password)
+            };
+        }
+
+        function estimateTimeToCrack(password) {
+            const charset = getCharsetSize(password);
+            const combinations = Math.pow(charset, password.length);
+            const guessesPerSecond = 1000000000; // 1 billion guesses per second
+            const secondsToCrack = combinations / (2 * guessesPerSecond);
+
+            if (secondsToCrack < 1) return "Instant";
+            if (secondsToCrack < 60) return "Less than a minute";
+            if (secondsToCrack < 3600) return `${Math.ceil(secondsToCrack/60)} minutes`;
+            if (secondsToCrack < 86400) return `${Math.ceil(secondsToCrack/3600)} hours`;
+            if (secondsToCrack < 31536000) return `${Math.ceil(secondsToCrack/86400)} days`;
+            if (secondsToCrack < 31536000000) return `${Math.ceil(secondsToCrack/31536000)} years`;
+            return "Centuries";
+        }
+
+        function getCharsetSize(password) {
+            let size = 0;
+            if (/[a-z]/.test(password)) size += 26;
+            if (/[A-Z]/.test(password)) size += 26;
+            if (/[0-9]/.test(password)) size += 10;
+            if (/[^A-Za-z0-9]/.test(password)) size += 32;
+            return size;
+        }
+
+        function updateDisplay(strength, password) {
+            // Update strength meter
+            strengthFill.style.width = strength.score + '%';
+            
+            // Update score display
+            scoreDisplay.textContent = `${strength.score}/100`;
+            
+            // Update strength text
+            const strengthLabels = {
+                'very-weak': 'Very Weak 😟',
+                'weak': 'Weak 😐',
+                'medium': 'Medium 🙂',
+                'strong': 'Strong 😊',
+                'very-strong': 'Very Strong 🔒'
+            };
+            
+            strengthText.textContent = strengthLabels[strength.level] || 'Start typing...';
+            strengthText.className = 'strength-text strength-' + strength.level;
+
+            // Update requirements
+            updateRequirements(strength.requirements);
+
+            // Update analysis
+            if (password.length > 0) {
+                updateAnalysis(strength);
+                analysisSection.style.display = 'block';
+            } else {
+                analysisSection.style.display = 'none';
+            }
+        }
+
+        function updateRequirements(requirements) {
+            const reqElements = {
+                length: document.getElementById('req-length'),
+                uppercase: document.getElementById('req-uppercase'),
+                lowercase: document.getElementById('req-lowercase'),
+                numbers: document.getElementById('req-numbers'),
+                special: document.getElementById('req-special'),
+                noCommon: document.getElementById('req-no-common')
+            };
+
+            for (const [key, element] of Object.entries(reqElements)) {
+                const icon = element.querySelector('.requirement-icon');
+                if (requirements[key]) {
+                    element.className = 'requirement met';
+                    icon.textContent = '✅';
                 } else {
-                    response = this.generateKnowledgeBasedResponse(userMessage);
+                    element.className = 'requirement not-met';
+                    icon.textContent = '❌';
                 }
+            }
+        }
 
-                return { response, sources, analysis };
+        function updateAnalysis(strength) {
+            let analysisHTML = '';
+            
+            analysisHTML += `<div class="analysis-item">
+                <strong>Estimated time to crack:</strong> ${strength.timeToCrack}
+            </div>`;
+            
+            analysisHTML += `<div class="analysis-item">
+                <strong>Character set diversity:</strong> ${getCharsetSize(passwordInput.value)} different character types
+            </div>`;
+            
+            if (strength.feedback.length > 0) {
+                analysisHTML += `<div class="analysis-item">
+                    <strong>Recommendations:</strong><br>
+                    ${strength.feedback.map(f => `• ${f}`).join('<br>')}
+                </div>`;
             }
 
-            synthesizeResponse(query, searchResults, analysis) {
-                if (!searchResults || searchResults.length === 0) {
-                    return "I searched for information but couldn't find specific results. Let me provide you with general knowledge about this topic.";
-                }
+            analysisContent.innerHTML = analysisHTML;
+        }
 
-                let response = `Based on my web search, here's what I found about "${query}":\n\n`;
-
-                // Add analysis box
-                response += `📊 **Analysis Summary:**\n`;
-                response += `• Query Type: ${analysis.queryType}\n`;
-                response += `• Topic Category: ${analysis.topics}\n`;
-                response += `• Information Sources: ${searchResults.length} sources analyzed\n\n`;
-
-                // Synthesize information from top results
-                const topResults = searchResults.slice(0, 3);
-                
-                topResults.forEach((result, index) => {
-                    response += `**${index + 1}. ${result.title}**\n`;
-                    response += `${result.snippet}\n`;
-                    response += `*Source: ${result.source} (Relevance: ${Math.round(result.relevance * 100)}%)*\n\n`;
-                });
-
-                // Add intelligent conclusion
-                response += `**💡 Key Insights:**\n`;
-                if (topResults.length > 1) {
-                    response += `Based on multiple sources, this appears to be a ${analysis.complexity} complexity topic with current relevance. `;
-                    response += `The information shows consistent patterns across different sources, suggesting reliability.\n\n`;
-                } else {
-                    response += `Limited sources available, but the information appears current and relevant to your query.\n\n`;
-                }
-
-                // Add follow-up suggestions
-                response += `**🔍 Would you like me to:**\n`;
-                response += `• Search for more specific aspects of this topic\n`;
-                response += `• Analyze the data in more detail\n`;
-                response += `• Find related information\n`;
-                response += `• Compare different perspectives`;
-
-                return response;
+        function toggleVisibility() {
+            const input = document.getElementById('passwordInput');
+            const btn = document.getElementById('toggleBtn');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
             }
+        }
 
-            generateKnowledgeBasedResponse(query) {
-                const q = query.toLowerCase();
-                
-                // Comprehensive responses based on common queries
-                if (q.includes('hello') || q.includes('hi')) {
-                    return "Hello! I'm SmartAI Pro with web search capabilities. I can search the internet for current information, analyze data, and provide comprehensive answers to your questions. What would you like to explore today?";
-                }
-                
-                if (q.includes('how are you') || q.includes('how do you work')) {
-                    return "I'm functioning excellently! I'm an advanced AI with several capabilities:\n\n🧠 **Core Intelligence:** I can understand context, analyze complex queries, and provide detailed responses\n\n🔍 **Web Search:** I can search the internet for real-time information when needed\n\n📊 **Data Analysis:** I can process and synthesize information from multiple sources\n\n💡 **Problem Solving:** I can help with everything from simple questions to complex research tasks\n\nWhat would you like me to help you with?";
-                }
-                
-                if (q.includes('what can you do') || q.includes('capabilities')) {
-                    return "I'm a comprehensive AI assistant with these key capabilities:\n\n**🔍 Web Search & Research**\n• Search the internet for current information\n• Find and analyze multiple sources\n• Fact-check and verify information\n\n**🧮 Analysis & Synthesis**\n• Analyze complex data and trends\n• Compare different perspectives\n• Provide evidence-based insights\n\n**💡 Problem Solving**\n• Answer complex questions\n• Help with research projects\n• Provide step-by-step solutions\n\n**📝 Content Creation**\n• Write and edit various types of content\n• Explain complex topics simply\n• Provide structured information\n\n**🎯 Personalized Assistance**\n• Adapt to your specific needs\n• Remember context within our conversation\n• Provide follow-up suggestions\n\nTry asking me about current events, complex topics, or anything you'd like to research!";
-                }
-                
-                // Default intelligent response
-                return `That's an interesting question about "${query}". While I can provide general information on this topic, would you like me to search the web for the most current and detailed information? I can find recent developments, multiple perspectives, and analyze the latest data to give you a comprehensive answer.\n\nAlternatively, I can work with my existing knowledge base to provide you with fundamental information about this topic. What
+        function generateStrongPassword() {
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            const allChars = lowercase + uppercase + numbers + symbols;
+            let password = '';
+            
+            // Ensure at least one character from each category
+            password += lowercase[Math.floor(Math.random() * lowercase.length)];
+            password += uppercase[Math.floor(Math.random() * uppercase.length)];
+            password += numbers[Math.floor(Math.random() * numbers.length)];
+            password += symbols[Math.floor(Math.random() * symbols.length)];
+            
+            // Generate remaining characters
+            for (let i = 4; i < 16; i++) {
+                password += allChars[Math.floor(Math.random() * allChars.length)];
+            }
+            
+            // Shuffle the password
+            password = password.split('').sort(() => Math.random() - 0.5).join('');
+            
+            passwordInput.value = password;
+            passwordInput.dispatchEvent(new Event('input'));
+        }
+
+        // Initialize
+        passwordInput.focus();
+    </script>
+</body>
+</html>
