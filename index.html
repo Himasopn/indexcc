@@ -3,690 +3,634 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Car Racing Game</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Anonymous Chatroom</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            font-family: 'Arial', sans-serif;
+            box-sizing: border-box;
         }
-        
-        #gameContainer {
-            position: relative;
-            width: 100vw;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             height: 100vh;
-        }
-        
-        #ui {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        }
-        
-        #controls {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 100;
-            color: white;
-            font-size: 14px;
-            background: rgba(0,0,0,0.7);
-            padding: 15px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
-        
-        #minimap {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 200px;
-            height: 200px;
-            background: rgba(0,0,0,0.8);
-            border: 3px solid #00ff88;
-            border-radius: 15px;
-            z-index: 100;
-        }
-        
-        .speedometer {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #1a1a1a 0%, #333 70%, #555 100%);
-            border: 5px solid #00ff88;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #00ff88;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 0 0 10px #00ff88;
-            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 800px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .login-screen h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .input-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .join-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+
+        .join-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .chat-screen {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .online-count {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .leave-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .leave-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.own {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message.other {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .message-header {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .message-content {
+            padding: 12px 18px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message.own .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .message.other .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .message-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 20px;
+            font-style: italic;
+            color: #666;
+            background: rgba(102, 126, 234, 0.1);
+            margin: 0 20px;
+            border-radius: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .login-screen h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <div id="ui">
-            <div>Points: <span id="score">0</span></div>
-            <div>Speed: <span id="speed">0</span> km/h</div>
-            <div>Time: <span id="timer">0:00</span></div>
+    <div class="container">
+        <!-- Login Screen -->
+        <div class="login-screen" id="loginScreen">
+            <h1>🚀 Anonymous Chat</h1>
+            <div class="login-form">
+                <div class="input-group">
+                    <input type="text" id="usernameInput" placeholder="Enter your username" maxlength="20" autocomplete="off">
+                </div>
+                <button class="join-btn" onclick="joinChat()">Join Chat Room</button>
+            </div>
         </div>
-        
-        <div id="controls">
-            <div><strong>Controls:</strong></div>
-            <div>W/↑ - Accelerate</div>
-            <div>S/↓ - Brake/Reverse</div>
-            <div>A/← - Turn Left</div>
-            <div>D/→ - Turn Right</div>
-            <div>Space - Handbrake</div>
-            <div>R - Reset Car</div>
-        </div>
-        
-        <canvas id="minimap"></canvas>
-        
-        <div class="speedometer">
-            <span id="speedDisplay">0</span>
+
+        <!-- Chat Screen -->
+        <div class="chat-screen" id="chatScreen">
+            <div class="chat-header">
+                <h2 id="chatTitle">Chat Room</h2>
+                <div class="online-count" id="onlineCount">Online: 1</div>
+                <button class="leave-btn" onclick="leaveChat()">Leave</button>
+            </div>
+            
+            <div class="messages" id="messages"></div>
+            <div class="typing-indicator" id="typingIndicator">Someone is typing...</div>
+            
+            <div class="message-input-container">
+                <input type="text" class="message-input" id="messageInput" placeholder="Type your message..." maxlength="500" autocomplete="off">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Game variables
-        let scene, camera, renderer, car, world;
-        let keys = {};
-        let score = 0;
-        let gameTime = 0;
-        let collectibles = [];
-        let obstacles = [];
-        
-        // Car physics
-        let carVelocity = new THREE.Vector3(0, 0, 0);
-        let carAcceleration = 0;
-        let carRotation = 0;
-        let carMaxSpeed = 2;
-        let carFriction = 0.95;
-        let carTurnSpeed = 0.03;
-        
-        // Initialize the game
-        function init() {
-            // Create scene
-            scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x87CEEB, 100, 1000);
+        let currentUser = '';
+        let messageHistory = [];
+        let onlineUsers = new Set();
+        let typingUsers = new Set();
+        let lastActivity = Date.now();
+        let typingTimeout = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChatHistory();
+            updateOnlineUsers();
             
-            // Create camera
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+            // Auto-cleanup old messages every 5 minutes
+            setInterval(cleanupOldMessages, 5 * 60 * 1000);
             
-            // Create renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            renderer.setClearColor(0x87CEEB);
-            document.getElementById('gameContainer').appendChild(renderer.domElement);
+            // Update online status every 30 seconds
+            setInterval(updateOnlineStatus, 30 * 1000);
             
-            // Add lighting
-            setupLighting();
-            
-            // Create world
-            createWorld();
-            
-            // Create car
-            createCar();
-            
-            // Create collectibles
-            createCollectibles();
-            
-            // Create obstacles
-            createObstacles();
-            
-            // Setup controls
-            setupControls();
-            
-            // Setup minimap
-            setupMinimap();
-            
-            // Start game loop
-            animate();
-            
-            // Start timer
-            setInterval(updateTimer, 1000);
-        }
-        
-        function setupLighting() {
-            // Ambient light
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-            scene.add(ambientLight);
-            
-            // Directional light (sun)
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-            directionalLight.position.set(100, 200, 100);
-            directionalLight.castShadow = true;
-            directionalLight.shadow.mapSize.width = 2048;
-            directionalLight.shadow.mapSize.height = 2048;
-            directionalLight.shadow.camera.near = 0.1;
-            directionalLight.shadow.camera.far = 500;
-            directionalLight.shadow.camera.left = -200;
-            directionalLight.shadow.camera.right = 200;
-            directionalLight.shadow.camera.top = 200;
-            directionalLight.shadow.camera.bottom = -200;
-            scene.add(directionalLight);
-        }
-        
-        function createWorld() {
-            // Create large ground plane
-            const groundGeometry = new THREE.PlaneGeometry(500, 500);
-            const groundMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0x228B22,
-                transparent: true,
-                opacity: 0.8
-            });
-            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            scene.add(ground);
-            
-            // Create road network
-            createRoads();
-            
-            // Create environment objects
-            createEnvironment();
-        }
-        
-        function createRoads() {
-            const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
-            
-            // Main circular road
-            const roadGeometry = new THREE.RingGeometry(45, 55, 32);
-            const mainRoad = new THREE.Mesh(roadGeometry, roadMaterial);
-            mainRoad.rotation.x = -Math.PI / 2;
-            mainRoad.position.y = 0.01;
-            scene.add(mainRoad);
-            
-            // Cross roads
-            const crossRoad1 = new THREE.Mesh(
-                new THREE.PlaneGeometry(120, 10),
-                roadMaterial
-            );
-            crossRoad1.rotation.x = -Math.PI / 2;
-            crossRoad1.position.y = 0.01;
-            scene.add(crossRoad1);
-            
-            const crossRoad2 = new THREE.Mesh(
-                new THREE.PlaneGeometry(10, 120),
-                roadMaterial
-            );
-            crossRoad2.rotation.x = -Math.PI / 2;
-            crossRoad2.position.y = 0.01;
-            scene.add(crossRoad2);
-            
-            // Additional curved roads
-            for (let i = 0; i < 4; i++) {
-                const curvedRoad = new THREE.Mesh(
-                    new THREE.RingGeometry(20, 25, 16, 1, i * Math.PI / 2, Math.PI / 2),
-                    roadMaterial
-                );
-                curvedRoad.rotation.x = -Math.PI / 2;
-                curvedRoad.position.set(
-                    Math.cos(i * Math.PI / 2) * 80,
-                    0.01,
-                    Math.sin(i * Math.PI / 2) * 80
-                );
-                scene.add(curvedRoad);
-            }
-        }
-        
-        function createEnvironment() {
-            // Create buildings
-            for (let i = 0; i < 15; i++) {
-                const height = Math.random() * 30 + 10;
-                const buildingGeometry = new THREE.BoxGeometry(
-                    Math.random() * 10 + 5,
-                    height,
-                    Math.random() * 10 + 5
-                );
-                const buildingMaterial = new THREE.MeshLambertMaterial({
-                    color: new THREE.Color().setHSL(Math.random(), 0.5, 0.6)
-                });
-                const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-                
-                // Position buildings around the map
-                const angle = (i / 15) * Math.PI * 2;
-                const radius = 100 + Math.random() * 50;
-                building.position.set(
-                    Math.cos(angle) * radius,
-                    height / 2,
-                    Math.sin(angle) * radius
-                );
-                building.castShadow = true;
-                scene.add(building);
-            }
-            
-            // Create trees
-            for (let i = 0; i < 30; i++) {
-                const treeGroup = new THREE.Group();
-                
-                // Tree trunk
-                const trunkGeometry = new THREE.CylinderGeometry(0.5, 1, 8);
-                const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-                const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-                trunk.position.y = 4;
-                treeGroup.add(trunk);
-                
-                // Tree leaves
-                const leavesGeometry = new THREE.SphereGeometry(6);
-                const leavesMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
-                const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
-                leaves.position.y = 10;
-                treeGroup.add(leaves);
-                
-                // Position trees randomly
-                treeGroup.position.set(
-                    (Math.random() - 0.5) * 400,
-                    0,
-                    (Math.random() - 0.5) * 400
-                );
-                
-                // Avoid placing trees on roads
-                const distance = Math.sqrt(treeGroup.position.x ** 2 + treeGroup.position.z ** 2);
-                if (distance < 35 || distance > 65 && distance < 75) {
-                    i--; // Try again
-                    continue;
-                }
-                
-                treeGroup.castShadow = true;
-                scene.add(treeGroup);
-            }
-        }
-        
-        function createCar() {
-            car = new THREE.Group();
-            
-            // Car body
-            const bodyGeometry = new THREE.BoxGeometry(4, 1.5, 8);
-            const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xff4444 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 1;
-            body.castShadow = true;
-            car.add(body);
-            
-            // Car roof
-            const roofGeometry = new THREE.BoxGeometry(3, 1, 4);
-            const roofMaterial = new THREE.MeshLambertMaterial({ color: 0xcc2222 });
-            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-            roof.position.y = 2.25;
-            roof.castShadow = true;
-            car.add(roof);
-            
-            // Wheels
-            const wheelGeometry = new THREE.CylinderGeometry(0.8, 0.8, 0.5);
-            const wheelMaterial = new THREE.MeshLambertMaterial({ color: 0x222222 });
-            
-            const wheelPositions = [
-                [-2, 0.8, 2.5],
-                [2, 0.8, 2.5],
-                [-2, 0.8, -2.5],
-                [2, 0.8, -2.5]
-            ];
-            
-            wheelPositions.forEach(pos => {
-                const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
-                wheel.position.set(...pos);
-                wheel.rotation.z = Math.PI / 2;
-                wheel.castShadow = true;
-                car.add(wheel);
-            });
-            
-            car.position.set(0, 0, 0);
-            scene.add(car);
-        }
-        
-        function createCollectibles() {
-            for (let i = 0; i < 25; i++) {
-                const collectible = new THREE.Group();
-                
-                // Main gem
-                const gemGeometry = new THREE.OctahedronGeometry(1.5);
-                const gemMaterial = new THREE.MeshLambertMaterial({
-                    color: 0x00ff88,
-                    emissive: 0x002211
-                });
-                const gem = new THREE.Mesh(gemGeometry, gemMaterial);
-                collectible.add(gem);
-                
-                // Glow effect
-                const glowGeometry = new THREE.SphereGeometry(2);
-                const glowMaterial = new THREE.MeshBasicMaterial({
-                    color: 0x00ff88,
-                    transparent: true,
-                    opacity: 0.3
-                });
-                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-                collectible.add(glow);
-                
-                // Position randomly on roads and around the map
-                let validPosition = false;
-                let attempts = 0;
-                
-                while (!validPosition && attempts < 50) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const radius = 35 + Math.random() * 150;
-                    collectible.position.set(
-                        Math.cos(angle) * radius,
-                        3,
-                        Math.sin(angle) * radius
-                    );
-                    
-                    validPosition = true; // Simplified for this demo
-                    attempts++;
-                }
-                
-                collectible.userData = { type: 'collectible', collected: false };
-                collectibles.push(collectible);
-                scene.add(collectible);
-            }
-        }
-        
-        function createObstacles() {
-            for (let i = 0; i < 10; i++) {
-                const obstacle = new THREE.Group();
-                
-                // Main barrier
-                const barrierGeometry = new THREE.BoxGeometry(2, 3, 6);
-                const barrierMaterial = new THREE.MeshLambertMaterial({
-                    color: 0xff6600
-                });
-                const barrier = new THREE.Mesh(barrierGeometry, barrierMaterial);
-                barrier.castShadow = true;
-                obstacle.add(barrier);
-                
-                // Warning stripes
-                const stripeGeometry = new THREE.BoxGeometry(2.1, 0.5, 6.1);
-                const stripeMaterial = new THREE.MeshLambertMaterial({
-                    color: 0xffff00
-                });
-                const stripe1 = new THREE.Mesh(stripeGeometry, stripeMaterial);
-                stripe1.position.y = -1;
-                const stripe2 = new THREE.Mesh(stripeGeometry, stripeMaterial);
-                stripe2.position.y = 1;
-                obstacle.add(stripe1);
-                obstacle.add(stripe2);
-                
-                // Position on roads
-                const angle = (i / 10) * Math.PI * 2;
-                obstacle.position.set(
-                    Math.cos(angle) * 50,
-                    1.5,
-                    Math.sin(angle) * 50
-                );
-                
-                obstacle.userData = { type: 'obstacle' };
-                obstacles.push(obstacle);
-                scene.add(obstacle);
-            }
-        }
-        
-        function setupControls() {
-            // Keyboard event listeners
-            document.addEventListener('keydown', (event) => {
-                keys[event.code] = true;
-            });
-            
-            document.addEventListener('keyup', (event) => {
-                keys[event.code] = false;
-            });
-            
-            // Touch controls for mobile (simplified)
-            let touchStartX = 0;
-            let touchStartY = 0;
-            
-            document.addEventListener('touchstart', (event) => {
-                touchStartX = event.touches[0].clientX;
-                touchStartY = event.touches[0].clientY;
-            });
-            
-            document.addEventListener('touchmove', (event) => {
-                event.preventDefault();
-                const deltaX = event.touches[0].clientX - touchStartX;
-                const deltaY = event.touches[0].clientY - touchStartY;
-                
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    keys['ArrowLeft'] = deltaX < -20;
-                    keys['ArrowRight'] = deltaX > 20;
-                } else {
-                    keys['ArrowUp'] = deltaY < -20;
-                    keys['ArrowDown'] = deltaY > 20;
-                }
-            });
-            
-            document.addEventListener('touchend', () => {
-                keys['ArrowLeft'] = false;
-                keys['ArrowRight'] = false;
-                keys['ArrowUp'] = false;
-                keys['ArrowDown'] = false;
-            });
-        }
-        
-        function setupMinimap() {
-            const minimapCanvas = document.getElementById('minimap');
-            minimapCanvas.width = 200;
-            minimapCanvas.height = 200;
-            const ctx = minimapCanvas.getContext('2d');
-            
-            function drawMinimap() {
-                ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(0, 0, 200, 200);
-                
-                // Draw roads
-                ctx.strokeStyle = '#666';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(100, 100, 25, 0, Math.PI * 2);
-                ctx.stroke();
-                
-                // Draw car
-                const carX = (car.position.x / 250) * 100 + 100;
-                const carZ = (car.position.z / 250) * 100 + 100;
-                ctx.fillStyle = '#ff4444';
-                ctx.fillRect(carX - 2, carZ - 2, 4, 4);
-                
-                // Draw collectibles
-                collectibles.forEach(collectible => {
-                    if (!collectible.userData.collected) {
-                        const x = (collectible.position.x / 250) * 100 + 100;
-                        const z = (collectible.position.z / 250) * 100 + 100;
-                        ctx.fillStyle = '#00ff88';
-                        ctx.fillRect(x - 1, z - 1, 2, 2);
-                    }
-                });
-                
-                requestAnimationFrame(drawMinimap);
-            }
-            
-            drawMinimap();
-        }
-        
-        function updateCarPhysics() {
-            // Handle input
-            let accelerating = false;
-            let braking = false;
-            let turningLeft = false;
-            let turningRight = false;
-            let handbrake = false;
-            
-            if (keys['KeyW'] || keys['ArrowUp']) accelerating = true;
-            if (keys['KeyS'] || keys['ArrowDown']) braking = true;
-            if (keys['KeyA'] || keys['ArrowLeft']) turningLeft = true;
-            if (keys['KeyD'] || keys['ArrowRight']) turningRight = true;
-            if (keys['Space']) handbrake = true;
-            if (keys['KeyR']) resetCar();
-            
-            // Apply acceleration
-            if (accelerating) {
-                carAcceleration = Math.min(carAcceleration + 0.01, 0.15);
-            } else if (braking) {
-                carAcceleration = Math.max(carAcceleration - 0.02, -0.08);
-            } else {
-                carAcceleration *= 0.9; // Gradual deceleration
-            }
-            
-            // Apply handbrake
-            if (handbrake) {
-                carAcceleration *= 0.8;
-            }
-            
-            // Calculate forward vector
-            const forward = new THREE.Vector3(0, 0, -1);
-            forward.applyQuaternion(car.quaternion);
-            
-            // Apply acceleration to velocity
-            const acceleration = forward.clone().multiplyScalar(carAcceleration);
-            carVelocity.add(acceleration);
-            
-            // Apply friction
-            carVelocity.multiplyScalar(carFriction);
-            
-            // Limit maximum speed
-            if (carVelocity.length() > carMaxSpeed) {
-                carVelocity.normalize().multiplyScalar(carMaxSpeed);
-            }
-            
-            // Apply steering (only when moving)
-            const speed = carVelocity.length();
-            if (speed > 0.1) {
-                let steerAmount = 0;
-                if (turningLeft) steerAmount -= carTurnSpeed;
-                if (turningRight) steerAmount += carTurnSpeed;
-                
-                // Reduce turning at high speeds for realism
-                steerAmount *= Math.max(0.3, 1 - speed / carMaxSpeed);
-                
-                car.rotation.y += steerAmount * (speed / carMaxSpeed);
-            }
-            
-            // Update car position
-            car.position.add(carVelocity);
-            
-            // Keep car on the map (basic boundary)
-            const maxDistance = 240;
-            if (car.position.length() > maxDistance) {
-                car.position.normalize().multiplyScalar(maxDistance);
-                carVelocity.multiplyScalar(0.5); // Slow down when hitting boundary
-            }
-        }
-        
-        function updateCamera() {
-            // Third-person camera following the car
-            const idealOffset = new THREE.Vector3(0, 15, 20);
-            idealOffset.applyQuaternion(car.quaternion);
-            const idealPosition = car.position.clone().add(idealOffset);
-            
-            // Smooth camera movement
-            camera.position.lerp(idealPosition, 0.1);
-            
-            // Look at car
-            const lookAtTarget = car.position.clone();
-            lookAtTarget.y += 2;
-            camera.lookAt(lookAtTarget);
-        }
-        
-        function checkCollisions() {
-            // Check collectible collisions
-            collectibles.forEach(collectible => {
-                if (!collectible.userData.collected) {
-                    const distance = car.position.distanceTo(collectible.position);
-                    if (distance < 5) {
-                        collectible.userData.collected = true;
-                        collectible.visible = false;
-                        score += 10;
-                        document.getElementById('score').textContent = score;
-                        
-                        // Add some visual feedback
-                        carVelocity.add(new THREE.Vector3(
-                            (Math.random() - 0.5) * 0.1,
-                            0,
-                            (Math.random() - 0.5) * 0.1
-                        ));
-                    }
-                }
-            });
-            
-            // Check obstacle collisions
-            obstacles.forEach(obstacle => {
-                const distance = car.position.distanceTo(obstacle.position);
-                if (distance < 6) {
-                    // Bounce back
-                    const pushBack = car.position.clone().sub(obstacle.position).normalize();
-                    carVelocity.add(pushBack.multiplyScalar(0.3));
-                    carVelocity.multiplyScalar(0.3); // Reduce speed significantly
-                }
-            });
-        }
-        
-        function updateUI() {
-            // Update speed display
-            const speed = Math.floor(carVelocity.length() * 50); // Convert to km/h-like units
-            document.getElementById('speed').textContent = speed;
-            document.getElementById('speedDisplay').textContent = speed;
-        }
-        
-        function updateTimer() {
-            gameTime++;
-            const minutes = Math.floor(gameTime / 60);
-            const seconds = gameTime % 60;
-            document.getElementById('timer').textContent = 
-                `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-        
-        function resetCar() {
-            car.position.set(0, 0, 0);
-            car.rotation.y = 0;
-            carVelocity.set(0, 0, 0);
-            carAcceleration = 0;
-        }
-        
-        function animateCollectibles() {
-            collectibles.forEach(collectible => {
-                if (!collectible.userData.collected) {
-                    collectible.rotation.y += 0.02;
-                    collectible.children[0].rotation.x += 0.01;
-                    // Floating animation
-                    collectible.position.y = 3 + Math.sin(Date.now() * 0.003 + collectible.position.x) * 0.5;
-                }
-            });
-        }
-        
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            updateCarPhysics();
-            updateCamera();
-            checkCollisions();
-            updateUI();
-            animateCollectibles();
-            
-            renderer.render(scene, camera);
-        }
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            // Check for new messages every 2 seconds
+            setInterval(loadNewMessages, 2000);
         });
-        
-        // Start the game
-        init();
+
+        // Enter key handlers
+        document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                joinChat();
+            }
+        });
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Typing indicator
+        document.getElementById('messageInput').addEventListener('input', function() {
+            handleTyping();
+        });
+
+        function joinChat() {
+            const username = document.getElementById('usernameInput').value.trim();
+            
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+
+            if (username.length > 20) {
+                alert('Username too long (max 20 characters)');
+                return;
+            }
+
+            currentUser = username;
+            
+            // Add user to online list
+            onlineUsers.add(currentUser);
+            saveOnlineUsers();
+            
+            // Show chat screen
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('chatScreen').style.display = 'flex';
+            
+            // Load chat history
+            loadChatHistory();
+            displayMessages();
+            updateOnlineCount();
+            
+            // Add join message
+            addSystemMessage(`${currentUser} joined the chat`);
+            
+            // Focus on message input
+            document.getElementById('messageInput').focus();
+        }
+
+        function leaveChat() {
+            if (currentUser) {
+                // Remove user from online list
+                onlineUsers.delete(currentUser);
+                saveOnlineUsers();
+                
+                // Add leave message
+                addSystemMessage(`${currentUser} left the chat`);
+                
+                currentUser = '';
+            }
+            
+            // Show login screen
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('chatScreen').style.display = 'none';
+            
+            // Clear username input
+            document.getElementById('usernameInput').value = '';
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message || !currentUser) return;
+            
+            const messageObj = {
+                id: Date.now() + Math.random(),
+                username: currentUser,
+                message: message,
+                timestamp: new Date().toISOString(),
+                type: 'user'
+            };
+            
+            // Add to message history
+            messageHistory.push(messageObj);
+            saveChatHistory();
+            
+            // Clear input and display message
+            messageInput.value = '';
+            displayMessages();
+            
+            // Update activity
+            lastActivity = Date.now();
+            updateOnlineStatus();
+            
+            // Clear typing indicator
+            clearTypingIndicator();
+        }
+
+        function addSystemMessage(message) {
+            const messageObj = {
+                id: Date.now() + Math.random(),
+                username: 'System',
+                message: message,
+                timestamp: new Date().toISOString(),
+                type: 'system'
+            };
+            
+            messageHistory.push(messageObj);
+            saveChatHistory();
+            displayMessages();
+        }
+
+        function displayMessages() {
+            const messagesContainer = document.getElementById('messages');
+            messagesContainer.innerHTML = '';
+            
+            // Show last 50 messages
+            const recentMessages = messageHistory.slice(-50);
+            
+            recentMessages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                
+                if (msg.type === 'system') {
+                    messageDiv.innerHTML = `
+                        <div style="text-align: center; color: #666; font-style: italic; margin: 10px 0; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                            ${escapeHtml(msg.message)}
+                        </div>
+                    `;
+                } else {
+                    const isOwn = msg.username === currentUser;
+                    const timeStr = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
+                    messageDiv.innerHTML = `
+                        <div class="message-header">${isOwn ? 'You' : escapeHtml(msg.username)} • ${timeStr}</div>
+                        <div class="message-content">${escapeHtml(msg.message)}</div>
+                    `;
+                }
+                
+                messagesContainer.appendChild(messageDiv);
+            });
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function loadChatHistory() {
+            try {
+                const saved = localStorage.getItem('chatHistory');
+                if (saved) {
+                    messageHistory = JSON.parse(saved);
+                    // Clean old messages on load
+                    cleanupOldMessages();
+                }
+            } catch (e) {
+                messageHistory = [];
+            }
+        }
+
+        function saveChatHistory() {
+            try {
+                localStorage.setItem('chatHistory', JSON.stringify(messageHistory));
+            } catch (e) {
+                console.error('Failed to save chat history');
+            }
+        }
+
+        function loadNewMessages() {
+            if (!currentUser) return;
+            
+            try {
+                const saved = localStorage.getItem('chatHistory');
+                if (saved) {
+                    const savedHistory = JSON.parse(saved);
+                    if (savedHistory.length > messageHistory.length) {
+                        messageHistory = savedHistory;
+                        displayMessages();
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load new messages');
+            }
+            
+            updateOnlineUsers();
+        }
+
+        function updateOnlineUsers() {
+            try {
+                const saved = localStorage.getItem('onlineUsers');
+                if (saved) {
+                    const savedUsers = JSON.parse(saved);
+                    onlineUsers = new Set(savedUsers.filter(user => {
+                        const userActivity = localStorage.getItem(`activity_${user}`);
+                        return userActivity && (Date.now() - parseInt(userActivity)) < 2 * 60 * 1000; // 2 minutes
+                    }));
+                    saveOnlineUsers();
+                }
+            } catch (e) {
+                console.error('Failed to update online users');
+            }
+            
+            updateOnlineCount();
+        }
+
+        function saveOnlineUsers() {
+            try {
+                localStorage.setItem('onlineUsers', JSON.stringify([...onlineUsers]));
+            } catch (e) {
+                console.error('Failed to save online users');
+            }
+        }
+
+        function updateOnlineCount() {
+            const count = Math.max(1, onlineUsers.size);
+            document.getElementById('onlineCount').textContent = `Online: ${count}`;
+        }
+
+        function updateOnlineStatus() {
+            if (currentUser) {
+                lastActivity = Date.now();
+                localStorage.setItem(`activity_${currentUser}`, lastActivity.toString());
+                onlineUsers.add(currentUser);
+                saveOnlineUsers();
+            }
+        }
+
+        function cleanupOldMessages() {
+            const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+            const now = Date.now();
+            
+            messageHistory = messageHistory.filter(msg => {
+                const msgTime = new Date(msg.timestamp).getTime();
+                return (now - msgTime) < maxAge;
+            });
+            
+            // Keep at least last 20 messages
+            if (messageHistory.length > 100) {
+                messageHistory = messageHistory.slice(-100);
+            }
+            
+            saveChatHistory();
+        }
+
+        function handleTyping() {
+            if (!currentUser) return;
+            
+            // Clear existing timeout
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+            }
+            
+            // Show typing indicator for others (simplified)
+            typingTimeout = setTimeout(() => {
+                clearTypingIndicator();
+            }, 3000);
+        }
+
+        function clearTypingIndicator() {
+            // In a real implementation, this would clear typing indicators
+            // For this demo, we'll keep it simple
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (currentUser) {
+                onlineUsers.delete(currentUser);
+                saveOnlineUsers();
+            }
+        });
+
+        // Handle visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Page is hidden
+            } else {
+                // Page is visible, refresh
+                if (currentUser) {
+                    loadNewMessages();
+                    updateOnlineStatus();
+                }
+            }
+        });
     </script>
 </body>
 </html>
