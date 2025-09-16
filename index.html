@@ -3,661 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Password Strength Checker</title>
+    <title>3D Car Game</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
         }
-
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 600px;
-            padding: 40px;
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            z-index: 100;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            z-index: 100;
+            font-size: 14px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
             backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
         }
-
-        .container::before {
-            content: '';
+        
+        #speedometer {
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            animation: shimmer 4s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1.1em;
-            opacity: 0.8;
-        }
-
-        .password-input-container {
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .password-input {
-            width: 100%;
-            padding: 20px 60px 20px 20px;
-            border: 3px solid #ddd;
-            border-radius: 15px;
-            font-size: 18px;
-            outline: none;
-            transition: all 0.3s ease;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .password-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 5px 25px rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .toggle-visibility {
-            position: absolute;
+            bottom: 20px;
             right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #666;
-            transition: all 0.3s ease;
-        }
-
-        .toggle-visibility:hover {
-            color: #667eea;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .strength-meter {
-            height: 10px;
-            background: #f0f0f0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .strength-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 10px;
-            transition: all 0.5s ease;
-            background: linear-gradient(90deg, #ff4757, #ffa502, #26de81, #2ed573);
-            background-size: 400% 100%;
-            animation: gradient 2s ease infinite;
-        }
-
-        @keyframes gradient {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        .strength-text {
+            color: white;
+            z-index: 100;
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 25px;
+            border-radius: 50px;
             text-align: center;
-            font-weight: bold;
-            font-size: 1.2em;
-            margin-bottom: 30px;
-            padding: 10px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid #00ff88;
         }
-
-        .strength-very-weak {
-            background: linear-gradient(135deg, #ff4757, #ff3742);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
-        }
-
-        .strength-weak {
-            background: linear-gradient(135deg, #ffa502, #ff9500);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 165, 2, 0.3);
-        }
-
-        .strength-medium {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            color: white;
-            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
-        }
-
-        .strength-strong {
-            background: linear-gradient(135deg, #26de81, #20bf6b);
-            color: white;
-            box-shadow: 0 4px 15px rgba(38, 222, 129, 0.3);
-        }
-
-        .strength-very-strong {
-            background: linear-gradient(135deg, #2ed573, #17c0eb);
-            color: white;
-            box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
-        }
-
-        .requirements {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .requirements h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-        }
-
-        .requirements h3::before {
-            content: "✅";
-            margin-right: 10px;
-        }
-
-        .requirement {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-            padding: 8px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .requirement.met {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            color: #155724;
-            transform: scale(1.02);
-        }
-
-        .requirement.not-met {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            color: #721c24;
-        }
-
-        .requirement-icon {
-            margin-right: 10px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .analysis {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .analysis h3 {
-            color: #1565c0;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-        }
-
-        .analysis h3::before {
-            content: "🧠";
-            margin-right: 10px;
-        }
-
-        .analysis-item {
-            margin: 8px 0;
-            padding: 8px 12px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 8px;
-            border-left: 4px solid #2196f3;
-        }
-
-        .tips {
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .tips h3 {
-            color: #ef6c00;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-        }
-
-        .tips h3::before {
-            content: "💡";
-            margin-right: 10px;
-        }
-
-        .tip {
-            margin: 8px 0;
-            padding: 8px 12px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 8px;
-            border-left: 4px solid #ff9800;
-        }
-
-        .generate-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 20px;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .generate-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .score-display {
-            text-align: center;
-            font-size: 3em;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #667eea;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .password-input {
-                font-size: 16px;
-                padding: 15px 50px 15px 15px;
-            }
+        
+        canvas {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔒 Password Strength Checker</h1>
-            <p>Advanced security analysis for your passwords</p>
+    <div id="gameContainer">
+        <div id="ui">
+            <h2>🏎️ 3D Car Racing</h2>
+            <div>Lap: <span id="lapCount">1</span></div>
+            <div>Time: <span id="timer">00:00</span></div>
         </div>
-
-        <div class="password-input-container">
-            <input type="password" class="password-input" id="passwordInput" placeholder="Enter your password here..." />
-            <button class="toggle-visibility" id="toggleBtn" onclick="toggleVisibility()">👁️</button>
+        
+        <div id="controls">
+            <div><strong>Controls:</strong></div>
+            <div>🡹🡻 Arrow Keys / WASD - Drive</div>
+            <div>🡸🡺 Left/Right - Steer</div>
+            <div>SPACE - Brake</div>
+            <div>R - Reset Position</div>
         </div>
-
-        <div class="strength-meter">
-            <div class="strength-fill" id="strengthFill"></div>
+        
+        <div id="speedometer">
+            <div>Speed</div>
+            <div id="speed">0</div>
+            <div style="font-size: 12px;">km/h</div>
         </div>
-
-        <div class="strength-text" id="strengthText">Start typing to check password strength</div>
-
-        <div class="score-display" id="scoreDisplay">0/100</div>
-
-        <div class="requirements" id="requirements">
-            <h3>Password Requirements</h3>
-            <div class="requirement not-met" id="req-length">
-                <span class="requirement-icon">❌</span>
-                <span>At least 8 characters long</span>
-            </div>
-            <div class="requirement not-met" id="req-uppercase">
-                <span class="requirement-icon">❌</span>
-                <span>Contains uppercase letters (A-Z)</span>
-            </div>
-            <div class="requirement not-met" id="req-lowercase">
-                <span class="requirement-icon">❌</span>
-                <span>Contains lowercase letters (a-z)</span>
-            </div>
-            <div class="requirement not-met" id="req-numbers">
-                <span class="requirement-icon">❌</span>
-                <span>Contains numbers (0-9)</span>
-            </div>
-            <div class="requirement not-met" id="req-special">
-                <span class="requirement-icon">❌</span>
-                <span>Contains special characters (!@#$%^&*)</span>
-            </div>
-            <div class="requirement not-met" id="req-no-common">
-                <span class="requirement-icon">❌</span>
-                <span>Not a common password</span>
-            </div>
-        </div>
-
-        <div class="analysis" id="analysisSection" style="display: none;">
-            <h3>Security Analysis</h3>
-            <div id="analysisContent"></div>
-        </div>
-
-        <div class="tips">
-            <h3>Password Security Tips</h3>
-            <div class="tip">Use a mix of uppercase and lowercase letters</div>
-            <div class="tip">Include numbers and special characters</div>
-            <div class="tip">Make it at least 12 characters long</div>
-            <div class="tip">Avoid personal information (names, dates)</div>
-            <div class="tip">Don't use common passwords or dictionary words</div>
-            <div class="tip">Consider using a passphrase instead</div>
-        </div>
-
-        <button class="generate-btn" onclick="generateStrongPassword()">🎲 Generate Strong Password</button>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        const passwordInput = document.getElementById('passwordInput');
-        const strengthFill = document.getElementById('strengthFill');
-        const strengthText = document.getElementById('strengthText');
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const analysisSection = document.getElementById('analysisSection');
-        const analysisContent = document.getElementById('analysisContent');
+        class CarGame {
+            constructor() {
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setClearColor(0x87CEEB);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                document.getElementById('gameContainer').appendChild(this.renderer.domElement);
 
-        const commonPasswords = [
-            'password', '123456', '123456789', 'qwerty', 'abc123',
-            'password123', 'admin', 'letmein', 'welcome', 'monkey',
-            'dragon', 'master', 'shadow', 'login', 'princess'
-        ];
-
-        passwordInput.addEventListener('input', function() {
-            const password = this.value;
-            const strength = calculatePasswordStrength(password);
-            updateDisplay(strength, password);
-        });
-
-        function calculatePasswordStrength(password) {
-            let score = 0;
-            let feedback = [];
-            let requirements = {
-                length: false,
-                uppercase: false,
-                lowercase: false,
-                numbers: false,
-                special: false,
-                noCommon: true
-            };
-
-            // Length check
-            if (password.length >= 8) {
-                requirements.length = true;
-                score += 20;
-            } else if (password.length >= 6) {
-                score += 10;
-                feedback.push("Password should be at least 8 characters long");
-            } else {
-                feedback.push("Password is too short (minimum 8 characters)");
+                this.car = null;
+                this.carVelocity = new THREE.Vector3();
+                this.carSpeed = 0;
+                this.maxSpeed = 0.8;
+                this.acceleration = 0.02;
+                this.friction = 0.95;
+                this.turnSpeed = 0.05;
+                
+                this.keys = {};
+                this.startTime = Date.now();
+                this.lapCount = 1;
+                this.checkpoints = [];
+                this.lastCheckpoint = -1;
+                
+                this.init();
+                this.animate();
             }
 
-            // Bonus for longer passwords
-            if (password.length >= 12) score += 10;
-            if (password.length >= 16) score += 10;
-
-            // Character variety checks
-            if (/[A-Z]/.test(password)) {
-                requirements.uppercase = true;
-                score += 15;
-            } else {
-                feedback.push("Add uppercase letters for better security");
+            init() {
+                this.setupLighting();
+                this.createGround();
+                this.createTrack();
+                this.createCar();
+                this.createEnvironment();
+                this.setupCamera();
+                this.setupControls();
+                this.createCheckpoints();
             }
 
-            if (/[a-z]/.test(password)) {
-                requirements.lowercase = true;
-                score += 15;
-            } else {
-                feedback.push("Add lowercase letters for better security");
+            setupLighting() {
+                // Ambient light
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+                this.scene.add(ambientLight);
+
+                // Directional light (sun)
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                directionalLight.position.set(50, 100, 50);
+                directionalLight.castShadow = true;
+                directionalLight.shadow.mapSize.width = 2048;
+                directionalLight.shadow.mapSize.height = 2048;
+                directionalLight.shadow.camera.near = 0.5;
+                directionalLight.shadow.camera.far = 500;
+                directionalLight.shadow.camera.left = -100;
+                directionalLight.shadow.camera.right = 100;
+                directionalLight.shadow.camera.top = 100;
+                directionalLight.shadow.camera.bottom = -100;
+                this.scene.add(directionalLight);
             }
 
-            if (/[0-9]/.test(password)) {
-                requirements.numbers = true;
-                score += 15;
-            } else {
-                feedback.push("Add numbers for better security");
+            createGround() {
+                const groundGeometry = new THREE.PlaneGeometry(200, 200);
+                const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+                const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                ground.rotation.x = -Math.PI / 2;
+                ground.receiveShadow = true;
+                this.scene.add(ground);
             }
 
-            if (/[^A-Za-z0-9]/.test(password)) {
-                requirements.special = true;
-                score += 15;
-            } else {
-                feedback.push("Add special characters (!@#$%^&*) for better security");
-            }
-
-            // Common password check
-            if (commonPasswords.includes(password.toLowerCase())) {
-                requirements.noCommon = false;
-                score -= 30;
-                feedback.push("This is a commonly used password - avoid it!");
-            }
-
-            // Pattern checks
-            if (/(.)\1{2,}/.test(password)) {
-                score -= 10;
-                feedback.push("Avoid repeated characters");
-            }
-
-            if (/123|abc|qwe|asd/i.test(password)) {
-                score -= 15;
-                feedback.push("Avoid common sequences");
-            }
-
-            // Entropy bonus
-            const uniqueChars = new Set(password).size;
-            if (uniqueChars > password.length * 0.7) {
-                score += 10;
-                feedback.push("Good character diversity!");
-            }
-
-            score = Math.max(0, Math.min(100, score));
-
-            let level;
-            if (score < 30) level = 'very-weak';
-            else if (score < 50) level = 'weak';
-            else if (score < 70) level = 'medium';
-            else if (score < 90) level = 'strong';
-            else level = 'very-strong';
-
-            return {
-                score: score,
-                level: level,
-                requirements: requirements,
-                feedback: feedback,
-                timeToCrack: estimateTimeToCrack(password)
-            };
-        }
-
-        function estimateTimeToCrack(password) {
-            const charset = getCharsetSize(password);
-            const combinations = Math.pow(charset, password.length);
-            const guessesPerSecond = 1000000000; // 1 billion guesses per second
-            const secondsToCrack = combinations / (2 * guessesPerSecond);
-
-            if (secondsToCrack < 1) return "Instant";
-            if (secondsToCrack < 60) return "Less than a minute";
-            if (secondsToCrack < 3600) return `${Math.ceil(secondsToCrack/60)} minutes`;
-            if (secondsToCrack < 86400) return `${Math.ceil(secondsToCrack/3600)} hours`;
-            if (secondsToCrack < 31536000) return `${Math.ceil(secondsToCrack/86400)} days`;
-            if (secondsToCrack < 31536000000) return `${Math.ceil(secondsToCrack/31536000)} years`;
-            return "Centuries";
-        }
-
-        function getCharsetSize(password) {
-            let size = 0;
-            if (/[a-z]/.test(password)) size += 26;
-            if (/[A-Z]/.test(password)) size += 26;
-            if (/[0-9]/.test(password)) size += 10;
-            if (/[^A-Za-z0-9]/.test(password)) size += 32;
-            return size;
-        }
-
-        function updateDisplay(strength, password) {
-            // Update strength meter
-            strengthFill.style.width = strength.score + '%';
-            
-            // Update score display
-            scoreDisplay.textContent = `${strength.score}/100`;
-            
-            // Update strength text
-            const strengthLabels = {
-                'very-weak': 'Very Weak 😟',
-                'weak': 'Weak 😐',
-                'medium': 'Medium 🙂',
-                'strong': 'Strong 😊',
-                'very-strong': 'Very Strong 🔒'
-            };
-            
-            strengthText.textContent = strengthLabels[strength.level] || 'Start typing...';
-            strengthText.className = 'strength-text strength-' + strength.level;
-
-            // Update requirements
-            updateRequirements(strength.requirements);
-
-            // Update analysis
-            if (password.length > 0) {
-                updateAnalysis(strength);
-                analysisSection.style.display = 'block';
-            } else {
-                analysisSection.style.display = 'none';
-            }
-        }
-
-        function updateRequirements(requirements) {
-            const reqElements = {
-                length: document.getElementById('req-length'),
-                uppercase: document.getElementById('req-uppercase'),
-                lowercase: document.getElementById('req-lowercase'),
-                numbers: document.getElementById('req-numbers'),
-                special: document.getElementById('req-special'),
-                noCommon: document.getElementById('req-no-common')
-            };
-
-            for (const [key, element] of Object.entries(reqElements)) {
-                const icon = element.querySelector('.requirement-icon');
-                if (requirements[key]) {
-                    element.className = 'requirement met';
-                    icon.textContent = '✅';
-                } else {
-                    element.className = 'requirement not-met';
-                    icon.textContent = '❌';
+            createTrack() {
+                // Create track segments
+                const trackMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+                
+                // Main track - oval shape
+                const trackWidth = 8;
+                const trackSegments = [];
+                
+                // Straight sections
+                for (let i = 0; i < 40; i++) {
+                    const segment = new THREE.Mesh(
+                        new THREE.BoxGeometry(2, 0.2, trackWidth),
+                        trackMaterial
+                    );
+                    segment.position.set(i * 2 - 40, 0.1, 0);
+                    segment.receiveShadow = true;
+                    this.scene.add(segment);
+                }
+                
+                for (let i = 0; i < 40; i++) {
+                    const segment = new THREE.Mesh(
+                        new THREE.BoxGeometry(2, 0.2, trackWidth),
+                        trackMaterial
+                    );
+                    segment.position.set(i * 2 - 40, 0.1, 40);
+                    segment.receiveShadow = true;
+                    this.scene.add(segment);
+                }
+                
+                // Curved sections
+                for (let i = 0; i < 20; i++) {
+                    const angle = (i / 20) * Math.PI;
+                    const x = Math.cos(angle) * 20;
+                    const z = Math.sin(angle) * 20;
+                    
+                    const segment1 = new THREE.Mesh(
+                        new THREE.BoxGeometry(2, 0.2, trackWidth),
+                        trackMaterial
+                    );
+                    segment1.position.set(x + 40, 0.1, z + 20);
+                    segment1.rotation.y = -angle;
+                    segment1.receiveShadow = true;
+                    this.scene.add(segment1);
+                    
+                    const segment2 = new THREE.Mesh(
+                        new THREE.BoxGeometry(2, 0.2, trackWidth),
+                        trackMaterial
+                    );
+                    segment2.position.set(-x - 40, 0.1, -z + 20);
+                    segment2.rotation.y = Math.PI - angle;
+                    segment2.receiveShadow = true;
+                    this.scene.add(segment2);
                 }
             }
-        }
 
-        function updateAnalysis(strength) {
-            let analysisHTML = '';
-            
-            analysisHTML += `<div class="analysis-item">
-                <strong>Estimated time to crack:</strong> ${strength.timeToCrack}
-            </div>`;
-            
-            analysisHTML += `<div class="analysis-item">
-                <strong>Character set diversity:</strong> ${getCharsetSize(passwordInput.value)} different character types
-            </div>`;
-            
-            if (strength.feedback.length > 0) {
-                analysisHTML += `<div class="analysis-item">
-                    <strong>Recommendations:</strong><br>
-                    ${strength.feedback.map(f => `• ${f}`).join('<br>')}
-                </div>`;
+            createCar() {
+                const carGroup = new THREE.Group();
+                
+                // Car body
+                const bodyGeometry = new THREE.BoxGeometry(4, 1.5, 2);
+                const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.position.y = 1;
+                body.castShadow = true;
+                carGroup.add(body);
+                
+                // Car roof
+                const roofGeometry = new THREE.BoxGeometry(2.5, 1, 1.8);
+                const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x990000 });
+                const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+                roof.position.set(-0.5, 2, 0);
+                roof.castShadow = true;
+                carGroup.add(roof);
+                
+                // Wheels
+                const wheelGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.3);
+                const wheelMaterial = new THREE.MeshLambertMaterial({ color: 0x222222 });
+                
+                const wheelPositions = [
+                    [1.5, 0.5, 1.2],
+                    [1.5, 0.5, -1.2],
+                    [-1.5, 0.5, 1.2],
+                    [-1.5, 0.5, -1.2]
+                ];
+                
+                wheelPositions.forEach(pos => {
+                    const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                    wheel.position.set(...pos);
+                    wheel.rotation.z = Math.PI / 2;
+                    wheel.castShadow = true;
+                    carGroup.add(wheel);
+                });
+                
+                carGroup.position.set(-35, 0, 0);
+                this.car = carGroup;
+                this.scene.add(carGroup);
             }
 
-            analysisContent.innerHTML = analysisHTML;
-        }
+            createEnvironment() {
+                // Trees
+                for (let i = 0; i < 30; i++) {
+                    const tree = new THREE.Group();
+                    
+                    const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.8, 4);
+                    const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+                    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                    trunk.position.y = 2;
+                    trunk.castShadow = true;
+                    tree.add(trunk);
+                    
+                    const leavesGeometry = new THREE.SphereGeometry(3);
+                    const leavesMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+                    const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+                    leaves.position.y = 5;
+                    leaves.castShadow = true;
+                    tree.add(leaves);
+                    
+                    const x = (Math.random() - 0.5) * 180;
+                    const z = (Math.random() - 0.5) * 180;
+                    
+                    // Don't place trees on the track
+                    if (Math.abs(z) > 15 || Math.abs(x) > 70) {
+                        tree.position.set(x, 0, z);
+                        this.scene.add(tree);
+                    }
+                }
+                
+                // Buildings in the distance
+                for (let i = 0; i < 10; i++) {
+                    const buildingGeometry = new THREE.BoxGeometry(
+                        Math.random() * 8 + 4,
+                        Math.random() * 20 + 10,
+                        Math.random() * 8 + 4
+                    );
+                    const buildingMaterial = new THREE.MeshLambertMaterial({ 
+                        color: new THREE.Color().setHSL(Math.random() * 0.1 + 0.5, 0.3, 0.7)
+                    });
+                    const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+                    
+                    const angle = (i / 10) * Math.PI * 2;
+                    building.position.set(
+                        Math.cos(angle) * 120,
+                        building.geometry.parameters.height / 2,
+                        Math.sin(angle) * 120
+                    );
+                    building.castShadow = true;
+                    this.scene.add(building);
+                }
+            }
 
-        function toggleVisibility() {
-            const input = document.getElementById('passwordInput');
-            const btn = document.getElementById('toggleBtn');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                btn.textContent = '👁️';
+            createCheckpoints() {
+                const checkpointPositions = [
+                    [-35, 0, 0],  // Start/finish
+                    [0, 0, 0],    // Quarter track
+                    [35, 0, 20],  // Half track
+                    [0, 0, 40]    // Three quarters
+                ];
+                
+                checkpointPositions.forEach((pos, index) => {
+                    const geometry = new THREE.RingGeometry(3, 5, 8);
+                    const material = new THREE.MeshBasicMaterial({ 
+                        color: 0x00ff00, 
+                        transparent: true, 
+                        opacity: 0.3,
+                        side: THREE.DoubleSide
+                    });
+                    const checkpoint = new THREE.Mesh(geometry, material);
+                    checkpoint.position.set(pos[0], pos[1] + 2, pos[2]);
+                    checkpoint.rotation.x = Math.PI / 2;
+                    this.checkpoints.push({
+                        mesh: checkpoint,
+                        position: new THREE.Vector3(...pos),
+                        index: index
+                    });
+                    this.scene.add(checkpoint);
+                });
+            }
+
+            setupCamera() {
+                this.camera.position.set(0, 15, 20);
+                this.camera.lookAt(0, 0, 0);
+            }
+
+            setupControls() {
+                window.addEventListener('keydown', (e) => {
+                    this.keys[e.key.toLowerCase()] = true;
+                });
+                
+                window.addEventListener('keyup', (e) => {
+                    this.keys[e.key.toLowerCase()] = false;
+                });
+                
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+
+            updateCar() {
+                if (!this.car) return;
+                
+                let acceleration = 0;
+                let turning = 0;
+                
+                // Forward/backward
+                if (this.keys['arrowup'] || this.keys['w']) {
+                    acceleration = this.acceleration;
+                }
+                if (this.keys['arrowdown'] || this.keys['s']) {
+                    acceleration = -this.acceleration * 0.5;
+                }
+                
+                // Turning
+                if (this.keys['arrowleft'] || this.keys['a']) {
+                    turning = this.turnSpeed;
+                }
+                if (this.keys['arrowright'] || this.keys['d']) {
+                    turning = -this.turnSpeed;
+                }
+                
+                // Brake
+                if (this.keys[' ']) {
+                    this.carVelocity.multiplyScalar(0.9);
+                }
+                
+                // Reset position
+                if (this.keys['r']) {
+                    this.car.position.set(-35, 0, 0);
+                    this.car.rotation.y = 0;
+                    this.carVelocity.set(0, 0, 0);
+                    this.carSpeed = 0;
+                }
+                
+                // Apply acceleration in car's forward direction
+                if (acceleration !== 0) {
+                    const forward = new THREE.Vector3(
+                        Math.sin(this.car.rotation.y),
+                        0,
+                        Math.cos(this.car.rotation.y)
+                    );
+                    forward.multiplyScalar(acceleration);
+                    this.carVelocity.add(forward);
+                }
+                
+                // Apply turning (only when moving)
+                if (turning !== 0 && this.carVelocity.length() > 0.01) {
+                    this.car.rotation.y += turning * Math.min(this.carVelocity.length() * 2, 1);
+                }
+                
+                // Apply friction
+                this.carVelocity.multiplyScalar(this.friction);
+                
+                // Limit max speed
+                if (this.carVelocity.length() > this.maxSpeed) {
+                    this.carVelocity.normalize().multiplyScalar(this.maxSpeed);
+                }
+                
+                // Update position
+                this.car.position.add(this.carVelocity);
+                
+                // Calculate speed for display
+                this.carSpeed = this.carVelocity.length() * 200; // Convert to km/h scale
+            }
+
+            updateCamera() {
+                if (!this.car) return;
+                
+                const carPosition = this.car.position.clone();
+                const carRotation = this.car.rotation.y;
+                
+                // Camera follows behind the car
+                const cameraOffset = new THREE.Vector3(
+                    Math.sin(carRotation + Math.PI) * 15,
+                    10,
+                    Math.cos(carRotation + Math.PI) * 15
+                );
+                
+                this.camera.position.lerp(carPosition.clone().add(cameraOffset), 0.1);
+                this.camera.lookAt(carPosition);
+            }
+
+            checkLapProgress() {
+                if (!this.car) return;
+                
+                const carPos = this.car.position;
+                
+                this.checkpoints.forEach((checkpoint, index) => {
+                    const distance = carPos.distanceTo(checkpoint.position);
+                    
+                    if (distance < 8) {
+                        if (index === (this.lastCheckpoint + 1) % this.checkpoints.length) {
+                            this.lastCheckpoint = index;
+                            
+                            // Completed a lap
+                            if (index === 0 && this.lastCheckpoint === 0) {
+                                this.lapCount++;
+                                document.getElementById('lapCount').textContent = this.lapCount;
+                            }
+                            
+                            // Visual feedback
+                            checkpoint.mesh.material.color.setHex(0xffff00);
+                            setTimeout(() => {
+                                checkpoint.mesh.material.color.setHex(0x00ff00);
+                            }, 500);
+                        }
+                    }
+                });
+            }
+
+            updateUI() {
+                // Update speedometer
+                document.getElementById('speed').textContent = Math.round(this.carSpeed);
+                
+                // Update timer
+                const elapsed = (Date.now() - this.startTime) / 1000;
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = Math.floor(elapsed % 60);
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                this.updateCar();
+                this.updateCamera();
+                this.checkLapProgress();
+                this.updateUI();
+                
+                this.renderer.render(this.scene, this.camera);
             }
         }
 
-        function generateStrongPassword() {
-            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            const numbers = '0123456789';
-            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-            
-            const allChars = lowercase + uppercase + numbers + symbols;
-            let password = '';
-            
-            // Ensure at least one character from each category
-            password += lowercase[Math.floor(Math.random() * lowercase.length)];
-            password += uppercase[Math.floor(Math.random() * uppercase.length)];
-            password += numbers[Math.floor(Math.random() * numbers.length)];
-            password += symbols[Math.floor(Math.random() * symbols.length)];
-            
-            // Generate remaining characters
-            for (let i = 4; i < 16; i++) {
-                password += allChars[Math.floor(Math.random() * allChars.length)];
-            }
-            
-            // Shuffle the password
-            password = password.split('').sort(() => Math.random() - 0.5).join('');
-            
-            passwordInput.value = password;
-            passwordInput.dispatchEvent(new Event('input'));
-        }
-
-        // Initialize
-        passwordInput.focus();
+        // Start the game
+        const game = new CarGame();
     </script>
 </body>
 </html>
